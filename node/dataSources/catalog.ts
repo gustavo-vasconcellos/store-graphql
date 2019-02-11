@@ -70,9 +70,34 @@ export class CatalogDataSource extends RESTDataSource<Context> {
     `/pub/brand/list`
   )
 
+  public brandSearch = (query: string = '') => this.get(
+    `/pub/brand/list/${query}`
+  )
+
   public categories = (treeLevel: string) => this.get(
     `/pub/category/tree/${treeLevel}/`
   )
+
+  public categorySearch = (query: string = '', parentId: string = '') => this.get(
+    `/pub/category/list?filter=${query}&parent=${parentId}`
+  )
+
+  public collectionSearch = async (query: string = '') => {
+    const { vtex: { authToken, account, workspace }, cookies } = this.context
+    const clientAuth = cookies.get('VtexIdclientAutCookie')
+    /* TODO: use this.context.vtex.region in getting these data */
+    const { data } = await http.get(
+      `http://${workspace}--${account}.vtexcommercestable.com.br/api/catalog_system${this.collectionsUrl(query)}`,
+      {
+        headers: {
+          'Proxy-Authorization': authToken,
+          'VtexIdclientAutCookie': clientAuth,
+        }
+      }
+    )
+
+    return data
+  }
 
   public facets = (facets: string = '') => {
     const [path, options] = decodeURI(facets).split('?')
@@ -122,6 +147,8 @@ export class CatalogDataSource extends RESTDataSource<Context> {
       }
     )
   }
+
+  private collectionsUrl = (query: string) => `/pvt/collection/search/${query}?pageSize=50`
 
   private productSearchUrl = ({
     query = '',

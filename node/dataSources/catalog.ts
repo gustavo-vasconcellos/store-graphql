@@ -27,71 +27,72 @@ export class CatalogDataSource extends RESTDataSource<Context> {
     super()
   }
 
-  public product = (slug: string) => this.get(
-    `/pub/products/search/${slug && slug.toLowerCase()}/p`
-  )
+  public product = (slug: string) =>
+    this.get(`/pub/products/search/${slug && slug.toLowerCase()}/p`)
 
-  public productByEan = (id: string) => this.get(
-    `/pub/products/search?fq=alternateIds_Ean=${id}`
-  )
+  public productByEan = (id: string) =>
+    this.get(`/pub/products/search?fq=alternateIds_Ean=${id}`)
 
-  public productById = (id: string) => this.get(
-    `/pub/products/search?fq=productId:${id}`
-  )
+  public productById = (id: string) =>
+    this.get(`/pub/products/search?fq=productId:${id}`)
 
-  public productByReference = (id: string) => this.get(
-    `/pub/products/search?fq=alternateIds_RefId=${id}`
-  )
+  public productByReference = (id: string) =>
+    this.get(`/pub/products/search?fq=alternateIds_RefId=${id}`)
 
-  public productBySku = (skuIds: string[]) => this.get(
-    `/pub/products/search?${skuIds.map(skuId => `fq=skuId:${skuId}`).join('&')}`
-  )
+  public productBySku = (skuIds: string[]) =>
+    this.get(
+      `/pub/products/search?${skuIds
+        .map(skuId => `fq=skuId:${skuId}`)
+        .join('&')}`
+    )
 
   public products = (args: ProductsArgs) => {
     return this.get(this.productSearchUrl(args))
   }
 
   public productsQuantity = async (args: ProductsArgs) => {
-    const { vtex: ioContext, vtex: { account } } = this.context
+    const {
+      vtex: ioContext,
+      vtex: { account }
+    } = this.context
 
-    const { headers: { resources } } = await http.head(
-      `${this.baseURL}${this.productSearchUrl(args)}`,
-      {
-        headers: withAuthToken()(ioContext),
-      }
-    )
+    const {
+      headers: { resources }
+    } = await http.head(`${this.baseURL}${this.productSearchUrl(args)}`, {
+      headers: withAuthToken()(ioContext)
+    })
 
     const [_, quantity] = resources.split('/')
 
     return parseInt(quantity, 10)
   }
 
-  public brands = () => this.get(
-    `/pub/brand/list`
-  )
+  public brands = () => this.get(`/pub/brand/list`)
 
-  public brandSearch = (query: string = '') => this.get(
-    `/pub/brand/list/${query}`
-  )
+  public brandSearch = (query: string = '') =>
+    this.get(`/pub/brand/list/${query}`)
 
-  public categories = (treeLevel: string) => this.get(
-    `/pub/category/tree/${treeLevel}/`
-  )
+  public categories = (treeLevel: string) =>
+    this.get(`/pub/category/tree/${treeLevel}/`)
 
-  public categorySearch = (query: string = '', parentId: string = '') => this.get(
-    `/pub/category/list?filter=${query}&parent=${parentId}`
-  )
+  public categorySearch = (query: string = '', parentId: string = '') =>
+    this.get(`/pub/category/list?filter=${query}&parent=${parentId}`)
 
   public collectionSearch = async (query: string = '') => {
-    const { vtex: { authToken, account, workspace }, cookies } = this.context
+    const {
+      vtex: { authToken, account, workspace },
+      cookies
+    } = this.context
     const clientAuth = cookies.get('VtexIdclientAutCookie')
     /* TODO: use this.context.vtex.region in getting these data */
     const { data } = await http.get(
-      `http://${workspace}--${account}.vtexcommercestable.com.br/api/catalog_system${this.collectionsUrl(query)}`,
+      `http://${workspace}--${account}.vtexcommercestable.com.br/api/catalog_system${this.collectionsUrl(
+        query
+      )}`,
       {
         headers: {
           'Proxy-Authorization': authToken,
-          'VtexIdclientAutCookie': clientAuth,
+          VtexIdclientAutCookie: clientAuth
         }
       }
     )
@@ -102,25 +103,29 @@ export class CatalogDataSource extends RESTDataSource<Context> {
   public facets = (facets: string = '') => {
     const [path, options] = decodeURI(facets).split('?')
     return this.get(
-      `/pub/facets/search/${encodeURI(`${path.trim()}${options ? '?' + options : ''}`)}`
+      `/pub/facets/search/${encodeURI(
+        `${path.trim()}${options ? '?' + options : ''}`
+      )}`
     )
   }
 
-  public category = (id: string) => this.get(
-    `/pub/category/${id}`
-  )
+  public category = (id: string) => this.get(`/pub/category/${id}`)
 
-  public crossSelling = (id: string, type: string) => this.get(
-    `/pub/products/crossselling/${type}/${id}`
-  )
+  public crossSelling = (id: string, type: string) =>
+    this.get(`/pub/products/crossselling/${type}/${id}`)
 
   get baseURL() {
-    const {vtex: {account, workspace, region}} = this.context
+    const {
+      vtex: { account, workspace, region }
+    } = this.context
     return `http://store-graphql.vtex.${region}.vtex.io/${account}/${workspace}/proxy/catalog`
   }
 
-  protected willSendRequest (request: RequestOptions) {
-    const {vtex: {authToken, production}, cookies} = this.context
+  protected willSendRequest(request: RequestOptions) {
+    const {
+      vtex: { authToken, production },
+      cookies
+    } = this.context
     const segment = cookies.get('vtex_segment')
     const [appMajorNumber] = process.env.VTEX_APP_VERSION.split('.')
     const appMajor = `${appMajorNumber}.x`
@@ -132,9 +137,9 @@ export class CatalogDataSource extends RESTDataSource<Context> {
     forEachObjIndexed(
       (value: string, param: string) => request.params.set(param, value),
       {
-        '__v': appMajor,
-        'production': production ? 'true' : 'false',
-        ...segment && {'vtex_segment': segment},
+        __v: appMajor,
+        production: production ? 'true' : 'false',
+        ...(segment && { vtex_segment: segment })
       }
     )
 
@@ -143,12 +148,13 @@ export class CatalogDataSource extends RESTDataSource<Context> {
       {
         'Accept-Encoding': 'gzip',
         Authorization: authToken,
-        ...segment && {Cookie: `vtex_segment=${segment}`},
+        ...(segment && { Cookie: `vtex_segment=${segment}` })
       }
     )
   }
 
-  private collectionsUrl = (query: string) => `/pvt/collection/search/${query}?pageSize=50`
+  private collectionsUrl = (query: string) =>
+    `/pvt/collection/search/${query}?pageSize=50`
 
   private productSearchUrl = ({
     query = '',
@@ -163,8 +169,15 @@ export class CatalogDataSource extends RESTDataSource<Context> {
     map = ''
   }: ProductsArgs) => {
     const sanitizedQuery = encodeURIComponent(decodeURIComponent(query).trim())
-    return (
-      `/pub/products/search/${sanitizedQuery}?${category && !query && `&fq=C:/${category}/`}${(specificationFilters && specificationFilters.length > 0 && specificationFilters.map(filter => `&fq=${filter}`)) || ''}${priceRange && `&fq=P:[${priceRange}]`}${collection && `&fq=productClusterIds:${collection}`}${salesChannel && `&fq=isAvailablePerSalesChannel_${salesChannel}:1`}${orderBy && `&O=${orderBy}`}${map && `&map=${map}`}${from > -1 && `&_from=${from}`}${to > -1 && `&_to=${to}`}`
-    )
+    return `/pub/products/search/${sanitizedQuery}?${category &&
+      !query &&
+      `&fq=C:/${category}/`}${(specificationFilters &&
+      specificationFilters.length > 0 &&
+      specificationFilters.map(filter => `&fq=${filter}`)) ||
+      ''}${priceRange && `&fq=P:[${priceRange}]`}${collection &&
+      `&fq=productClusterIds:${collection}`}${salesChannel &&
+      `&fq=isAvailablePerSalesChannel_${salesChannel}:1`}${orderBy &&
+      `&O=${orderBy}`}${map && `&map=${map}`}${from > -1 &&
+      `&_from=${from}`}${to > -1 && `&_to=${to}`}`
   }
 }

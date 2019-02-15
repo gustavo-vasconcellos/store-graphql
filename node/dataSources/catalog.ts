@@ -86,7 +86,7 @@ export class CatalogDataSource extends RESTDataSource<Context> {
     const clientAuth = cookies.get('VtexIdclientAutCookie')
     /* TODO: use this.context.vtex.region in getting these data */
     const { data } = await http.get(
-      `http://${workspace}--${account}.vtexcommercestable.com.br/api/catalog_system${this.collectionsUrl(
+      `http://${account}.vtexcommercestable.com.br/api/catalog_system${this.collectionsUrl(
         query
       )}`,
       {
@@ -97,7 +97,7 @@ export class CatalogDataSource extends RESTDataSource<Context> {
       }
     )
 
-    return data
+    return data.items
   }
 
   public facets = (facets: string = '') => {

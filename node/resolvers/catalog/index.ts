@@ -143,8 +143,10 @@ export const queries = {
 
   brands: async (_, __, { dataSources: { catalog } }) => catalog.brands(),
 
-  brandSearch: async (_, { query }, { dataSources: { catalog } }) =>
-    catalog.brandSearch(query) as Promise<Brand[]>,
+  brandSearch: async (_, { query }, { dataSources: { catalog } }) => {
+    const brands = (await catalog.brandSearch(query)) as Brand[]
+    return brands
+  },
 
   category: async (_, { id }, { dataSources: { catalog } }) =>
     catalog.category(id),
@@ -167,15 +169,14 @@ export const queries = {
   },
 
   collectionSearch: async (_, { query }, { dataSources: { catalog } }) => {
-    const data = await catalog.collectionSearch(query)
-
-    const collections = data.items
-
+    const collections = (await catalog.collectionSearch(query)) as Collection[]
     return collections
   },
 
-  departmentSearch: async (_, { query }, { dataSources: { catalog } }) =>
-    catalog.categorySearch(query) as Category[],
+  departmentSearch: async (_, { query }, { dataSources: { catalog } }) => {
+    const departments = (await catalog.categorySearch(query)) as Category[]
+    return departments
+  },
 
   search: async (_, args, ctx: Context) => {
     const { map: mapParams, query, rest } = args
@@ -281,6 +282,8 @@ interface Brand {
   id: string
   name: string
   isActive: boolean
+  title: string
+  metaTagDescription: string
 }
 
 interface Category {
@@ -288,4 +291,16 @@ interface Category {
   name: string
   url: string
   children: Category[]
+  hasChildren: boolean
+  Title: string
+  MetaTagDescription: string
+}
+
+interface Collection {
+  id: number
+  name: string
+  searchable: boolean
+  highlight: boolean
+  dateFrom: string
+  dateTo: string
 }

@@ -68,6 +68,20 @@ export class ProfileDataSource extends IODataSource {
       metric: 'profile-system-deleteAddress'
     })
   }
+
+  public updatePersonalPreferences = (
+    userEmail: string,
+    personalPreferences: PersonalPreferences,
+  ) => {
+    return this.http.post(
+      `${userEmail}/personalPreferences/`,
+      personalPreferences,
+      {
+        headers: withHeadersFromContext(this.context),
+        metric: 'profile-system-subscribeNewsletter'
+      }
+    )
+  }
 }
 
 function withHeadersFromContext(context: IOContext | undefined) {

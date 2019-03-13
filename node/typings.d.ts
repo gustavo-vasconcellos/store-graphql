@@ -124,6 +124,10 @@ declare global {
     customFields: ProfileCustomField[]
   }
 
+  interface PersonalPreferences {
+    isNewsletterOptIn?: "True" | "False"
+  }
+
   interface ProfileCustomField {
     key: string
     value: string

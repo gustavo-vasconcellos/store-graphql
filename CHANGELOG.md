@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
+- Subscription related queries, moved to the `my-subscriptions-graphql`.
 
-## [2.59.0] - 2019-03-19
+## [2.59.0] - 2019-03-19 [YANKED]
 ### Removed
 - `Subscriptions`, moving the queries to the other `my-subscriptions-graphql`.
 

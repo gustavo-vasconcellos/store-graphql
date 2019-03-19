@@ -317,5 +317,4 @@ type Mutation {
    Otherwise, update it. """
   updateList(id: ID!, list: ListInput): List
   deleteList(id: ID!): List
-  uploadAttachment(acronym: String!, documentId: ID!, field: String!, file: Upload!): AttachmentResponse
 }
